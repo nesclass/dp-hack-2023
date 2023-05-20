@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+    border: 0;
+    margin: 0;
+    padding: 0;
+
+    font-weight: 400;
+    font-family: Manrope, sans-serif;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+
+    max-width: 100vw;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+.paginated-list .bx--structured-list {
+    margin-bottom: 0;
+}
+
+.paginated-list .bx--pagination {
+    margin-top: -1px;
+}
+
+.structured-list--scroll {
+    width: 100%;
+    overflow-x: scroll;
+}
+
+.bx--form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+}
