@@ -22,5 +22,5 @@ sequelize
     .catch((err) => {
         console.error("Database connection error: ", err);
     });
-console.log(1);
+
 export default sequelize;

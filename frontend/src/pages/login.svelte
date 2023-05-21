@@ -23,7 +23,7 @@
 
         try {
             const data = await api.user.signIn(username, password);
-
+			console.log(data);
             setToken(data.token);
             wrapper.style.display = "none"
             await loadUser();

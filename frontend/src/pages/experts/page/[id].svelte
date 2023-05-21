@@ -6,14 +6,16 @@
         StructuredListCell,
         StructuredListBody,
         Button, TextInput, Form,
-	    Pagination
+        Pagination, StructuredListSkeleton
     } from "carbon-components-svelte";
     import { Add, Search } from "carbon-icons-svelte";
 
     import { url } from "@roxi/routify";
+    import api from "../../_api";
 
     let fullName = "";
     let username = "";
+    let pageSize = 10;
 </script>
 
 <div class="w-full flex items-center">
@@ -25,10 +27,12 @@
 </div>
 
 <div class="paginated-list">
-	<!-- добавить await -->
 	<div class="grid grid-cols-12 gap-x-10">
 		<div class="flex flex-col col-span-8">
 			<div class="structured-list--scroll">
+				{#await api.user.list()}
+					<StructuredListSkeleton rows={pageSize} />
+				{:then response}
 				<StructuredList>
 					<StructuredListHead>
 						<StructuredListRow head>
@@ -38,25 +42,21 @@
 						</StructuredListRow>
 					</StructuredListHead>
 					<StructuredListBody>
-						<StructuredListRow>
-							<StructuredListCell nowrap>1</StructuredListCell>
-							<StructuredListCell>Даниил Неслуховский</StructuredListCell>
-							<StructuredListCell>АААААААААААААААААААААААААААААААААААААААААААА</StructuredListCell>
-						</StructuredListRow>
-						<StructuredListRow>
-							<StructuredListCell nowrap>2</StructuredListCell>
-							<StructuredListCell>Пётр Ильин</StructuredListCell>
-							<StructuredListCell>hevav</StructuredListCell>
-						</StructuredListRow>
-						<StructuredListRow>
-							<StructuredListCell nowrap>3</StructuredListCell>
-							<StructuredListCell>Егор Алтынов</StructuredListCell>
-							<StructuredListCell>skifry</StructuredListCell>
-						</StructuredListRow>
+						{#each response.items as item}
+							<StructuredListRow>
+								<StructuredListCell nowrap>{item.id}</StructuredListCell>
+								<StructuredListCell>{item.lastName} {item.firstName} {item.middleName}</StructuredListCell>
+								<StructuredListCell>{item.login}</StructuredListCell>
+							</StructuredListRow>
+						{/each}
 					</StructuredListBody>
 				</StructuredList>
+					{:catch e}
+
+				{/await}
 			</div>
 			<Pagination
+					bind:pageSize={pageSize}
 					totalItems={3} pageSizes={[10, 15, 20]}
 					forwardText="Следующая станица"
 					backwardText="Предыдущая страница"
@@ -75,7 +75,8 @@
 					<TextInput labelText="Поиск по логину" placeholder="ivan.ivanov"
 					           class="form-input" bind:value={username} />
 
-					<Button kind="secondary" size="field" icon={Search}>Поиск</Button>
+					<Button kind="secondary" size="field"
+					        style="width: 100%; margin-top: .5rem;" icon={Search}>Поиск</Button>
 				</Form>
 			</div>
 		</div>

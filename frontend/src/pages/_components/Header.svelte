@@ -5,8 +5,7 @@
     import { OverflowMenu, OverflowMenuItem } from "carbon-components-svelte";
 
     let links = {
-        "Главная": "/",
-	    "Статистика": "/stats",
+	    "Статистика": "/",
 	    "Участники": "/participants",
 	    "Оценки": "/ratings",
 	    "Эксперты": "/experts"
@@ -31,8 +30,8 @@
 				{$user.firstName} {$user.lastName}
 			</div>
 			<OverflowMenuItem
-					href={$url("/profile")}
-					text="Профиль" />
+					href="https://api.noname.to/documentation"
+					text="API документация" />
 			<OverflowMenuItem
 					href={$url("/signOut")}
 					text="Выйти из аккаунта" />

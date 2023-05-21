@@ -16,7 +16,15 @@ const listRequest = Type.Object(
 
 const listResponse = Type.Object({
     pagesCount: Type.Number(),
-    items: Type.Array(Type.Any()),
+    items: Type.Array(
+        Type.Object({
+            id: Type.Number(),
+            login: Type.String(),
+            firstName: Type.String(),
+            lastName: Type.String(),
+            middleName: Type.String(),
+        })
+    ),
 });
 
 export const get = async (fastify: FastifyInstance) => {

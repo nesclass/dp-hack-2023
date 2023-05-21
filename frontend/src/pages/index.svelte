@@ -1,59 +1,59 @@
 <script>
-	import { BarChartSimple } from "@carbon/charts-svelte";
+	import {
+        BarChartSimple
+    } from "@carbon/charts-svelte";
     import {
-        StructuredList,
-        StructuredListHead,
-        StructuredListRow,
-        StructuredListCell,
-        StructuredListBody,
+	    SkeletonPlaceholder
     } from "carbon-components-svelte";
+    import api from "./_api";
+    import {onMount} from "svelte";
+
+    onMount(async () => {
+        const data = await api.participants.list();
+    })
+
+	const groupBy = (data, callback) => {
+        const groups = {};
+
+        for(const item of data.items) {
+            const key = callback(item);
+            groups[key] = (groups[key] || 0) + 1;
+        }
+
+        return Object.entries(groups).map(
+            ([k, v]) => ({"group": k, "value": v})
+        );
+    }
+
+    const groupByEduProfession = (data) => groupBy(data, item => item["education"][0]["profession"]);
+    const groupByEducation = (data) => groupBy(data, item => item["education"][0]["place"]);
 </script>
 
-<BarChartSimple
+{#await api.participants.list()}
+	<SkeletonPlaceholder style="width: 100%; height: 400px" />
+{:then response}
+	<BarChartSimple
 		class="px-4"
-		data={[
-            { group: "Москва", value: 650 },
-            { group: "Екатеринбург", value: 291 },
-            { group: "Санкт-Петербург", value: 352 },
-            { group: "Подольск", value: 512 },
-            { group: "Владивосток", value: 169 },
-        ]}
+		data={groupByEduProfession(response)}
 		options={{
-            title: "Статистика по городам",
+            title: "Статистика по изученным профессиям",
             height: "400px",
             axes: {
 				left: { mapsTo: "value" },
 				bottom: { mapsTo: "group", scaleType: "labels" },
 			},
-        }} />
-
-<StructuredList>
-	<StructuredListHead>
-		<StructuredListRow head>
-			<StructuredListCell head>ID</StructuredListCell>
-			<StructuredListCell head>Имя участника</StructuredListCell>
-			<StructuredListCell head>Город</StructuredListCell>
-			<StructuredListCell head>Категория</StructuredListCell>
-		</StructuredListRow>
-	</StructuredListHead>
-	<StructuredListBody>
-		<StructuredListRow>
-			<StructuredListCell nowrap>1</StructuredListCell>
-			<StructuredListCell>Даниил Неслуховский</StructuredListCell>
-			<StructuredListCell>Москва</StructuredListCell>
-			<StructuredListCell>Надзиратель зоопарка</StructuredListCell>
-		</StructuredListRow>
-		<StructuredListRow>
-			<StructuredListCell nowrap>2</StructuredListCell>
-			<StructuredListCell>Пётр Ильин</StructuredListCell>
-			<StructuredListCell>Подольск</StructuredListCell>
-			<StructuredListCell>Сварка аргоновых котлов в 40 атмосфер</StructuredListCell>
-		</StructuredListRow>
-		<StructuredListRow>
-			<StructuredListCell nowrap>3</StructuredListCell>
-			<StructuredListCell>Егор Алтынов</StructuredListCell>
-			<StructuredListCell>Подольск</StructuredListCell>
-			<StructuredListCell>ИИшник</StructuredListCell>
-		</StructuredListRow>
-	</StructuredListBody>
-</StructuredList>
+        }}
+	/>
+	<BarChartSimple
+			class="px-4 mb-8"
+			data={groupByEducation(response)}
+			options={{
+            title: "Статистика по университету",
+            height: "400px",
+            axes: {
+				left: { mapsTo: "value" },
+				bottom: { mapsTo: "group", scaleType: "labels" },
+			},
+        }}
+	/>
+{/await}

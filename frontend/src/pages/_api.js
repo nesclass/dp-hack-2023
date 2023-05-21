@@ -17,7 +17,7 @@ let doRequest = async (action, args = undefined, method = "GET") => {
         body: method === "POST" ? JSON.stringify(args) : undefined
     })
 
-    let data = await response.json()
+    let data = await response.json();
 
     if (response.status >= 400) {
         throw { message: data.message, statusCode: response.status };
@@ -30,11 +30,12 @@ const api = {
     "user": {
         "signIn": async (login, password) => doRequest(
             "user/signIn", {login, password}, "POST"),
-        "info": async () => doRequest("user/info")
+        "info": async () => doRequest("user/info"),
+        "list": async (page = 1, pageSize = 10) => doRequest("user/list", {page, pageSize})
     },
     "participants": {
-        "list": async (page=1, pageSize=10, sort=null, filters=[]) => doRequest(
-            "participants/list", {page, pageSize, sort, filters}, "POST")
+        "list": async (page=1, pageSize=10) => doRequest(
+            "participant/list", {page, pageSize}, "GET")
     }
 }
 

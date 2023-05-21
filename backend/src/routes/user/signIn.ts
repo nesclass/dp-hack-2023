@@ -15,7 +15,12 @@ const signInRequest = Type.Object(
     { description: "Данные для авторизации" }
 );
 
-const signInResponse = Type.String({ description: "Успешная авторизация" });
+const signInResponse = Type.Object({
+token: Type.String({
+    description: "Успешная авторизация",
+    default: "JWT-BEARER-TOKEN",
+})
+});
 
 export const signIn = async (fastify: FastifyInstance) => {
     fastify.post<{ Body: Static<typeof signInRequest> }>(
@@ -56,7 +61,7 @@ export const signIn = async (fastify: FastifyInstance) => {
                 });
 
             const token = fastify.jwt.sign({ id: user.id });
-            return res.send(token);
+            return res.send({token: token});
         }
     );
 };

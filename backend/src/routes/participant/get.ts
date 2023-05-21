@@ -3,7 +3,7 @@ import { Static, Type } from "@sinclair/typebox";
 import { Participant } from "../../db";
 
 //Подробнее о возможностях валидации лучше смотреть тут - https://github.com/sinclairzx81/typebox
-const listRequest = Type.Object(
+const getRequest = Type.Object(
     {
         participantId: Type.Number(),
     },
@@ -11,13 +11,13 @@ const listRequest = Type.Object(
 );
 
 export const get = async (fastify: FastifyInstance) => {
-    fastify.get<{ Params: Static<typeof listRequest> }>(
+    fastify.get<{ Params: Static<typeof getRequest> }>(
         "/participant/:participantId",
         {
             schema: {
                 description: "Получение информации о участнике",
                 tags: ["participant"],
-                params: listRequest,
+                params: getRequest,
                 response: {
                     401: Type.Object(
                         {
@@ -44,12 +44,8 @@ export const get = async (fastify: FastifyInstance) => {
         },
         async (req, res) => {
             const { participantId } = req.params;
-            console.log(participantId);
-            const participant = await Participant.findOne({
-                where: {
-                    id: participantId,
-                },
-            });
+
+            const participant = await Participant.findByPk(participantId);
             if (!participant)
                 return res.status(400).send({
                     code: "PARTICIPANT_NOT_FOUND",

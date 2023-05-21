@@ -33,12 +33,14 @@ export const upload = async (fastify: FastifyInstance) => {
     fastify.redis.sub.subscribe("dataset/output");
     fastify.redis.sub.on("message", async (channel, message) => {
         const response = JSON.parse(message);
+        console.log(response);
         const process = await Process.findOne({
             where: {
                 id: response.id,
             },
         });
-        if (response.type === "participants") {
+
+        if (process.type === "participant") {
             const participants = await Participant.bulkCreate(
                 response.data.map((participant: Participant) => ({
                     ...participant,
@@ -54,6 +56,7 @@ export const upload = async (fastify: FastifyInstance) => {
                 data: response.data,
             });
         }
+
         await process.update(
             response.error
                 ? { status: "REJECTED", message: response.error }
@@ -67,7 +70,7 @@ export const upload = async (fastify: FastifyInstance) => {
         {
             preHandler: [fastify.auth(), uploader.single("dataset")],
             schema: {
-                description: "Загрузка .csv файла",
+                description: "Загрузка .csv/.xlsx файла",
                 tags: ["dashboard"],
                 consumes: ["multipart/form-data"],
                 response: {
@@ -111,6 +114,7 @@ export const upload = async (fastify: FastifyInstance) => {
         },
         async (req, res) => {
             const { type } = req.body as { type: string };
+            await Process.truncate();
 
             if (!alowedTypes.includes(type))
                 return res.status(408).send({
@@ -138,6 +142,7 @@ export const upload = async (fastify: FastifyInstance) => {
             const process = await Process.create({
                 fileName,
                 fileHash,
+                type,
                 userId: req.user.id,
             });
 
@@ -150,7 +155,7 @@ export const upload = async (fastify: FastifyInstance) => {
 
                 const result = await fastify.redis.pub.publish(
                     "dataset/input",
-                    JSON.stringify({ data, type, id: process.id })
+                    JSON.stringify({ data, id: process.id })
                 );
 
                 if (!result) {
@@ -163,12 +168,13 @@ export const upload = async (fastify: FastifyInstance) => {
             } else {
                 const data = await csv({
                     checkType: true,
+                    flatKeys: true,
                     ignoreEmpty: true,
                 }).fromString(req.file.buffer.toString());
 
                 const result = await fastify.redis.pub.publish(
                     "dataset/input",
-                    JSON.stringify({ data, type, id: process.id })
+                    JSON.stringify({ data, id: process.id })
                 );
                 if (!result) {
                     await process.destroy();

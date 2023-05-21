@@ -20,7 +20,7 @@
 	{:else if ($isActive("./login") && $user)}
 		{$goto("./", {}, false)}
 	{:else if $user}
-		<Header/>
+		<Header />
 	{/if}
 
 	<!-- routify:options preload="proximity" -->

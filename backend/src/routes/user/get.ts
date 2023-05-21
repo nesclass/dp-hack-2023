@@ -53,11 +53,7 @@ export const get = async (fastify: FastifyInstance) => {
         async (req, res) => {
             const { userId } = req.params;
 
-            const user = await User.findOne({
-                where: {
-                    id: userId,
-                },
-            });
+            const user = await User.findByPk(userId);
             if (!user)
                 return res.status(400).send({
                     code: "USER_NOT_FOUND",

@@ -8,6 +8,7 @@ export class Process extends Model {
     declare fileName: string;
     declare userId: number;
     declare status: "PENDING" | "RESOLVED" | "REJECTED";
+    declare type: "participant" | "result";
     declare message: string;
 }
 
@@ -27,6 +28,9 @@ Process.init(
             type: DataTypes.STRING,
             unique: true,
         },
+        type: {
+            type: DataTypes.STRING,
+        },
         status: {
             type: DataTypes.STRING,
             defaultValue: "PENDING",
@@ -44,3 +48,5 @@ Process.init(
 User.hasMany(Process, {
     foreignKey: "userId",
 });
+
+// Process.truncate();

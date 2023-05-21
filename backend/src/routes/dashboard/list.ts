@@ -2,7 +2,7 @@ import { FastifyInstance } from "fastify";
 import { Static, Type } from "@sinclair/typebox";
 import sequelize from "../../db/sequelize";
 import QueryParser from "sequelize-query";
-import { Participant } from "../../db";
+import { Dashboard } from "../../db";
 
 const { parse } = QueryParser(sequelize);
 
@@ -12,7 +12,7 @@ const listRequest = Type.Object(
         page: Type.Number(),
         pageSize: Type.Number(),
     },
-    { description: "Данные для авторизации" }
+    { description: "Данные для авторизации", additionalProperties: true }
 );
 
 const listResponse = Type.Object({
@@ -22,12 +22,12 @@ const listResponse = Type.Object({
 
 export const list = async (fastify: FastifyInstance) => {
     fastify.get<{ Querystring: Static<typeof listRequest> }>(
-        "/participant/list",
+        "/dashboard/list",
         {
             schema: {
                 description:
-                    "Получение списка участников (с фильтрами и сортировкой)",
-                tags: ["participant"],
+                    "Получение списка дашбоардов (с фильтрами и сортировкой)",
+                tags: ["dashboard"],
                 querystring: listRequest,
                 response: {
                     "2xx": listResponse,
@@ -46,10 +46,11 @@ export const list = async (fastify: FastifyInstance) => {
         async (req, res) => {
             const { page, pageSize } = req.query;
 
-            const { rows, count } = await Participant.findAndCountAll({
+            const { rows, count } = await Dashboard.findAndCountAll({
                 ...(await parse(req)),
                 limit: +pageSize,
                 offset: (+page - 1) * +pageSize,
+                attributes: ["id", "name"],
             });
 
             return res.send({
